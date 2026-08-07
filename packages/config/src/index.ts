@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-export * from './env.schema.js';
+export { envSchema, loadEnv, type Env } from './env.schema.js';
+

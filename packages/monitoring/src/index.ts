@@ -1,1 +1,2 @@
-export * from './metrics.js';
+export { MetricsCollector, metricsCollector } from './metrics.js';
+
