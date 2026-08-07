@@ -1,0 +1,16 @@
+{
+  "name": "@queueflow/config",
+  "version": "1.0.0",
+  "main": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

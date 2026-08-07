@@ -1,0 +1,95 @@
+name: QueueFlow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    name: Build & Test Suite
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: queueflow
+          POSTGRES_PASSWORD: queueflow_secret_password
+          POSTGRES_DB: queueflow_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7.2-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install Workspace Dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Validate Prisma ORM Schema
+        run: npx prisma validate --schema=packages/database/prisma/schema.prisma
+
+      - name: Generate Prisma Client
+        run: npx prisma generate --schema=packages/database/prisma/schema.prisma
+
+      - name: Run Vitest Unit & Integration Suite
+        run: npx vitest run
+
+      - name: Build Monorepo Workspaces
+        run: npm run build
+
+  build-and-push:
+    name: Build Production Docker Images
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry (GHCR)
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push API Server Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: apps/api-server/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/api-server:latest
+
+      - name: Build & Push Worker Service Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: services/worker-service/Dockerfile
+          push: true
+          tags: ghcr.io/${{ github.repository }}/worker-service:latest

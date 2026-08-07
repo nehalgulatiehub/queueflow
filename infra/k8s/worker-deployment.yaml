@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queueflow-worker-service
+  namespace: queueflow
+  labels:
+    app.kubernetes.io/name: worker-service
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: queueflow-worker-service
+  template:
+    metadata:
+      labels:
+        app: queueflow-worker-service
+    spec:
+      containers:
+        - name: worker-service
+          image: ghcr.io/queueflow/worker-service:latest
+          imagePullPolicy: IfNotPresent
+          envFrom:
+            - configMapRef:
+                name: queueflow-config
+            - secretRef:
+                name: queueflow-secrets
+          env:
+            - name: WORKER_CONCURRENCY
+              value: "20"
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "2000m"
+              memory: "2048Mi"
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: worker-service-hpa
+  namespace: queueflow
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: queueflow-worker-service
+  minReplicas: 5
+  maxReplicas: 100
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
