@@ -211,8 +211,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
   setWorkers: (workers) => set({ workers }),
   fetchLiveTelemetry: async () => {
     try {
-      const res = await fetch('http://localhost:4000/v1/live-telemetry');
-      if (res.ok) {
+      const res = await fetch('http://localhost:4000/v1/live-telemetry').catch(() => null);
+      if (res && res.ok) {
         const data = await res.json();
         set((state) => ({
           isConnected: true,
@@ -226,7 +226,7 @@ export const useDashboardStore = create<DashboardState>((set) => ({
         }));
       }
     } catch {
-      // Keep existing data on offline
+      // Keep existing state silently when server is offline
     }
   },
 }));
