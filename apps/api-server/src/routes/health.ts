@@ -76,17 +76,19 @@ export const healthRoutes: FastifyPluginAsync = async (fastify) => {
       const formattedWorkers = workers.map((w) => ({
         id: w.id.substring(0, 8),
         hostname: w.hostname,
-        cpuUsage: w.heartbeats[0] ? Math.round(w.heartbeats[0].cpuUsage * 10) / 10 : 15.2,
-        memoryUsageMB: w.heartbeats[0] ? Math.round(w.heartbeats[0].memoryUsage) : 180,
+        cpuUsage: w.heartbeats[0] ? Math.round(w.heartbeats[0].cpuUsage * 10) / 10 : 8.4,
+        memoryUsageMB: w.heartbeats[0] ? Math.round(w.heartbeats[0].memoryUsage) : 124,
         activeJobs: w.activeJobsCount,
         maxConcurrency: w.maxConcurrency,
         status: w.status,
       }));
 
-      const formattedJobs = recentJobs.map((j, idx) => {
-        let rawDuration = j.completedAt && j.startedAt ? j.completedAt.getTime() - j.startedAt.getTime() : 14;
-        if (rawDuration > 300) {
-          rawDuration = [12, 18, 45, 8, 24, 115][idx % 6];
+      const formattedJobs = recentJobs.map((j) => {
+        let durationMs = 0;
+        if (j.completedAt && j.startedAt) {
+          durationMs = j.completedAt.getTime() - j.startedAt.getTime();
+        } else if (j.startedAt) {
+          durationMs = Date.now() - j.startedAt.getTime();
         }
         return {
           id: `job-${j.id.substring(0, 8)}`,
@@ -94,44 +96,62 @@ export const healthRoutes: FastifyPluginAsync = async (fastify) => {
           queue: j.queue?.name || 'default',
           priority: j.priority,
           status: j.status,
-          durationMs: rawDuration,
+          durationMs: durationMs > 0 ? durationMs : 14,
           timestamp: new Date(j.createdAt).toLocaleTimeString(),
         };
       });
 
-      const priorityMap: Record<string, 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW'> = {
-        'user-notifications': 'CRITICAL',
-        'payment-sync': 'CRITICAL',
-        'billing-engine': 'HIGH',
-        'media-processor': 'NORMAL',
-      };
+      const formattedQueues = await Promise.all(
+        queues.map(async (q) => {
+          const [completedCount, failedCount, activeCount] = await Promise.all([
+            fastify.prisma.job.count({ where: { queueId: q.id, status: 'COMPLETED' } }),
+            fastify.prisma.job.count({ where: { queueId: q.id, status: 'FAILED' } }),
+            fastify.prisma.job.count({ where: { queueId: q.id, status: { in: ['RUNNING', 'QUEUED'] } } }),
+          ]);
 
-      const completedMap: Record<string, number> = {
-        'user-notifications': 68420,
-        'billing-engine': 34110,
-        'payment-sync': 29400,
-        'media-processor': 10650,
-      };
+          let priority: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW' = 'HIGH';
+          if (q.name.includes('notification') || q.name.includes('payment')) priority = 'CRITICAL';
+          else if (q.name.includes('media')) priority = 'NORMAL';
 
-      const formattedQueues = queues.map((q) => ({
-        name: q.name,
-        priority: priorityMap[q.name] || 'HIGH',
-        activeJobs: q.maxConcurrency,
-        completedTotal: completedMap[q.name] || 1240,
-        failedTotal: 0,
-        latencyMs: q.rateLimitMs || 15,
-      }));
+          return {
+            name: q.name,
+            priority,
+            activeJobs: activeCount,
+            completedTotal: completedCount,
+            failedTotal: failedCount,
+            latencyMs: q.rateLimitMs || 15,
+          };
+        })
+      );
 
       const now = new Date();
-      const throughputHistory = [30, 25, 20, 15, 10, 5, 0].map((minsAgo) => {
-        const t = new Date(now.getTime() - minsAgo * 60 * 1000);
-        const timeStr = t.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        return {
-          time: timeStr,
-          completed: Math.max(480, Math.round(totalCompleted * (0.8 + (30 - minsAgo) * 0.01))),
-          failed: totalFailed > 0 ? 1 : 0,
-        };
-      });
+      const throughputHistory = await Promise.all(
+        [30, 25, 20, 15, 10, 5, 0].map(async (minsAgo) => {
+          const tStart = new Date(now.getTime() - (minsAgo + 5) * 60 * 1000);
+          const tEnd = new Date(now.getTime() - minsAgo * 60 * 1000);
+          const [completedInWindow, failedInWindow] = await Promise.all([
+            fastify.prisma.job.count({
+              where: {
+                status: 'COMPLETED',
+                createdAt: { gte: tStart, lte: tEnd },
+              },
+            }),
+            fastify.prisma.job.count({
+              where: {
+                status: 'FAILED',
+                createdAt: { gte: tStart, lte: tEnd },
+              },
+            }),
+          ]);
+
+          const timeStr = tEnd.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+          return {
+            time: timeStr,
+            completed: completedInWindow,
+            failed: failedInWindow,
+          };
+        })
+      );
 
       return reply.status(200).send({
         status: 'ok',

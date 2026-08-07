@@ -10,7 +10,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ activeTab, setActiveTab }: NavbarProps) {
-  const { isConnected } = useDashboardStore();
+  const { isConnected, queues, activeWorkersCount } = useDashboardStore();
 
   return (
     <header className="border-b border-zinc-800/80 bg-[#09090b] sticky top-0 z-50">
@@ -84,7 +84,7 @@ export function Navbar({ activeTab, setActiveTab }: NavbarProps) {
           }`}
         >
           <Database className="w-3.5 h-3.5" />
-          Queues (4)
+          Queues ({queues.length})
         </button>
         <button
           onClick={() => setActiveTab('jobs')}
@@ -106,7 +106,7 @@ export function Navbar({ activeTab, setActiveTab }: NavbarProps) {
           }`}
         >
           <Cpu className="w-3.5 h-3.5" />
-          Worker Nodes (8)
+          Worker Nodes ({activeWorkersCount})
         </button>
       </div>
     </header>

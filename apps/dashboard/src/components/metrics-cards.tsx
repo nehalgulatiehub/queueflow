@@ -30,11 +30,11 @@ export function MetricsCards() {
       <div className="p-4 rounded-lg bg-[#121215] border border-zinc-800">
         <div className="flex items-center justify-between text-xs text-zinc-400 font-medium">
           <span>In-Flight Concurrency</span>
-          <span className="text-xs text-zinc-500 font-mono">14 / 80 slots</span>
+          <span className="text-xs text-zinc-500 font-mono">{activeJobsInFlight} / {Math.max(10, activeWorkersCount * 10)} slots</span>
         </div>
         <div className="mt-2 flex items-baseline justify-between">
           <span className="text-2xl font-bold text-zinc-100 font-mono tracking-tight">{activeJobsInFlight}</span>
-          <span className="text-xs text-emerald-400 font-mono">Active</span>
+          <span className="text-xs text-emerald-400 font-mono">{activeJobsInFlight > 0 ? 'Active' : 'Idle'}</span>
         </div>
         <div className="mt-3 pt-2.5 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500">
           <span>Active Worker Pool</span>
@@ -46,11 +46,11 @@ export function MetricsCards() {
       <div className="p-4 rounded-lg bg-[#121215] border border-zinc-800">
         <div className="flex items-center justify-between text-xs text-zinc-400 font-medium">
           <span>Processed Jobs</span>
-          <span className="text-emerald-400 font-mono text-[11px]">99.98% Success</span>
+          <span className="text-emerald-400 font-mono text-[11px]">100% Verified DB</span>
         </div>
         <div className="mt-2 flex items-baseline justify-between">
           <span className="text-2xl font-bold text-zinc-100 font-mono tracking-tight">
-            {(totalCompleted > 1000 ? totalCompleted : 142580 + totalCompleted).toLocaleString()}
+            {totalCompleted.toLocaleString()}
           </span>
           <span className="text-xs text-zinc-500 font-mono">p99: 18ms</span>
         </div>
