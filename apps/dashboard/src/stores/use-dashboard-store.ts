@@ -50,6 +50,7 @@ interface DashboardState {
   addJob: (job: TelemetryJob) => void;
   updateMetrics: (sample: ThroughputSample) => void;
   setWorkers: (workers: WorkerNode[]) => void;
+  fetchLiveTelemetry: () => Promise<void>;
 }
 
 export const useDashboardStore = create<DashboardState>((set) => ({
@@ -208,4 +209,24 @@ export const useDashboardStore = create<DashboardState>((set) => ({
       throughputHistory: [...state.throughputHistory.slice(1), sample],
     })),
   setWorkers: (workers) => set({ workers }),
+  fetchLiveTelemetry: async () => {
+    try {
+      const res = await fetch('http://localhost:4000/v1/live-telemetry');
+      if (res.ok) {
+        const data = await res.json();
+        set((state) => ({
+          isConnected: true,
+          activeWorkersCount: data.activeWorkersCount > 0 ? data.activeWorkersCount : state.activeWorkersCount,
+          totalCompleted: data.totalCompleted > 0 ? data.totalCompleted : state.totalCompleted,
+          totalFailed: data.totalFailed > 0 ? data.totalFailed : state.totalFailed,
+          activeJobsInFlight: data.activeJobsInFlight,
+          workers: data.workers.length > 0 ? data.workers : state.workers,
+          queues: data.queues.length > 0 ? data.queues : state.queues,
+          recentJobs: data.recentJobs.length > 0 ? data.recentJobs : state.recentJobs,
+        }));
+      }
+    } catch {
+      // Keep existing data on offline
+    }
+  },
 }));
