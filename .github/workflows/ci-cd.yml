@@ -11,6 +11,13 @@ jobs:
     name: Build & Test Suite
     runs-on: ubuntu-latest
 
+    env:
+      DATABASE_URL: postgresql://queueflow:queueflow_secret_password@localhost:5432/queueflow_db?schema=public
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: queueflow_redis_password
+
+
     services:
       postgres:
         image: postgres:16-alpine
