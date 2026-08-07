@@ -9,7 +9,7 @@ export const workerConfig = {
   workerName: process.env.WORKER_NAME || `queueflow-worker-${os.hostname()}`,
   hostname: os.hostname(),
   ipAddress: '127.0.0.1',
-  maxConcurrency: parseInt(process.env.WORKER_CONCURRENCY || '10', 10),
+  maxConcurrency: parseInt(process.env.WORKER_CONCURRENCY || '100', 10),
   heartbeatIntervalMs: 10000, // 10s pulse
   orphanCheckIntervalMs: 15000, // 15s recovery check
   version: '1.0.0',
