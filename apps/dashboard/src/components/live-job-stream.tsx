@@ -1,7 +1,7 @@
 'use client';
 
 import { useDashboardStore } from '../stores/use-dashboard-store';
-import { CheckCircle2, Clock, AlertTriangle, RefreshCw, Layers } from 'lucide-react';
+import { Terminal, CheckCircle2, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
 
 export function LiveJobStream() {
   const { recentJobs } = useDashboardStore();
@@ -13,80 +13,77 @@ export function LiveJobStream() {
       case 'HIGH':
         return 'bg-amber-500/10 text-amber-400 border-amber-500/20';
       case 'NORMAL':
-        return 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20';
+        return 'bg-blue-500/10 text-blue-400 border-blue-500/20';
       default:
-        return 'bg-slate-500/10 text-slate-400 border-slate-500/20';
+        return 'bg-zinc-800 text-zinc-400 border-zinc-700';
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'COMPLETED':
-        return <CheckCircle2 className="w-4 h-4 text-emerald-400" />;
+        return <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />;
       case 'PROCESSING':
-        return <RefreshCw className="w-4 h-4 text-cyan-400 animate-spin" />;
+        return <RefreshCw className="w-3.5 h-3.5 text-blue-400 animate-spin" />;
       case 'FAILED':
-        return <AlertTriangle className="w-4 h-4 text-rose-400" />;
+        return <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />;
       default:
-        return <Clock className="w-4 h-4 text-amber-400" />;
+        return <Clock className="w-3.5 h-3.5 text-amber-400" />;
     }
   };
 
   return (
-    <div className="rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800/80 shadow-xl backdrop-blur-xl p-5 mb-8">
-      <div className="flex items-center justify-between mb-4">
+    <div className="p-5 rounded-lg bg-[#121215] border border-zinc-800 mb-8">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800/80">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Layers className="w-5 h-5 text-indigo-400" />
-            Live Job Execution Stream
-          </h2>
-          <p className="text-xs text-slate-400">
-            Real-time payload status across Redis Stream consumer groups
-          </p>
+          <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+            <Terminal className="w-4 h-4 text-zinc-400" />
+            Recent Executions & Telemetry Log
+          </h3>
+          <p className="text-xs text-zinc-500 mt-0.5">Stream: <span className="font-mono text-zinc-400">queueflow:stream</span></p>
         </div>
-        <span className="px-2.5 py-1 text-xs font-mono font-medium rounded-lg bg-slate-800 text-slate-300 border border-slate-700">
-          Stream: queueflow:stream
-        </span>
+
+        <div className="flex items-center gap-2 text-xs">
+          <span className="px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400 font-mono text-[11px]">
+            Auto-refresh: 1s
+          </span>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
+        <table className="w-full text-left text-xs font-mono">
           <thead>
-            <tr className="border-b border-slate-800/80 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-              <th className="py-3 px-3">Job ID</th>
-              <th className="py-3 px-3">Handler / Event Name</th>
-              <th className="py-3 px-3">Queue Target</th>
-              <th className="py-3 px-3">Priority</th>
-              <th className="py-3 px-3">Status</th>
-              <th className="py-3 px-3">Latency</th>
-              <th className="py-3 px-3 text-right">Time</th>
+            <tr className="text-zinc-500 font-medium uppercase tracking-wider text-[11px] border-b border-zinc-800/60 font-sans">
+              <th className="pb-2 px-3">Job ID</th>
+              <th className="pb-2 px-3">Handler Function</th>
+              <th className="pb-2 px-3">Queue</th>
+              <th className="pb-2 px-3">Priority</th>
+              <th className="pb-2 px-3">Status</th>
+              <th className="pb-2 px-3">Duration</th>
+              <th className="pb-2 px-3 text-right">Timestamp</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/50 text-slate-300 font-mono text-xs">
+          <tbody className="divide-y divide-zinc-800/40 text-zinc-300">
             {recentJobs.map((job) => (
-              <tr key={job.id} className="hover:bg-slate-800/40 transition-colors">
-                <td className="py-3 px-3 font-bold text-slate-200">{job.id}</td>
-                <td className="py-3 px-3 font-sans font-medium text-white">{job.name}</td>
-                <td className="py-3 px-3">
-                  <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-300 border border-slate-700">
-                    {job.queue}
-                  </span>
-                </td>
-                <td className="py-3 px-3">
-                  <span className={`px-2 py-0.5 rounded-md font-bold text-[10px] border ${getPriorityBadge(job.priority)}`}>
+              <tr key={job.id} className="hover:bg-zinc-900/50 transition-colors">
+                <td className="py-2.5 px-3 font-bold text-zinc-200">{job.id}</td>
+                <td className="py-2.5 px-3 text-zinc-300 font-sans font-medium">{job.name}</td>
+                <td className="py-2.5 px-3 text-zinc-400">{job.queue}</td>
+                <td className="py-2.5 px-3">
+                  <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold border ${getPriorityBadge(job.priority)}`}>
                     {job.priority}
                   </span>
                 </td>
-                <td className="py-3 px-3">
-                  <div className="flex items-center gap-1.5 font-sans font-medium text-xs">
+                <td className="py-2.5 px-3">
+                  <div className="flex items-center gap-1.5 font-sans font-medium">
                     {getStatusIcon(job.status)}
-                    <span className={job.status === 'COMPLETED' ? 'text-emerald-400' : job.status === 'FAILED' ? 'text-rose-400' : 'text-cyan-400'}>
+                    <span className={job.status === 'COMPLETED' ? 'text-emerald-400' : job.status === 'FAILED' ? 'text-rose-400' : 'text-blue-400'}>
                       {job.status}
                     </span>
                   </div>
                 </td>
-                <td className="py-3 px-3 text-slate-400">{job.durationMs}ms</td>
-                <td className="py-3 px-3 text-right text-slate-400 font-sans">{job.timestamp}</td>
+                <td className="py-2.5 px-3 text-zinc-400">{job.durationMs}ms</td>
+                <td className="py-2.5 px-3 text-right text-zinc-500 font-sans">{job.timestamp}</td>
               </tr>
             ))}
           </tbody>

@@ -1,87 +1,63 @@
 'use client';
 
 import { useDashboardStore } from '../stores/use-dashboard-store';
-import { Cpu, Server, Activity } from 'lucide-react';
+import { Cpu, Server, HardDrive } from 'lucide-react';
 
 export function WorkerPoolWidget() {
-  const { workers, queues } = useDashboardStore();
+  const { workers } = useDashboardStore();
 
   return (
-    <div className="space-y-6">
-      {/* Active Worker Nodes Card */}
-      <div className="rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800/80 shadow-xl backdrop-blur-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Cpu className="w-4 h-4 text-cyan-400" />
-            Worker Instances
+    <div className="p-5 rounded-lg bg-[#121215] border border-zinc-800 mb-8">
+      <div className="flex items-center justify-between mb-4 pb-3 border-b border-zinc-800/80">
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-100 flex items-center gap-2">
+            <Cpu className="w-4 h-4 text-zinc-400" />
+            Worker Pool Nodes ({workers.length})
           </h3>
-          <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            HEALTHY
-          </span>
+          <p className="text-xs text-zinc-500 mt-0.5">Consumer group instances processing Redis Stream partition chunks</p>
         </div>
 
-        <div className="space-y-3">
-          {workers.map((worker) => (
-            <div key={worker.id} className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/70 hover:border-slate-700/80 transition">
-              <div className="flex items-center justify-between text-xs font-mono mb-1.5">
-                <span className="font-bold text-slate-200">{worker.id}</span>
-                <span className={`px-1.5 py-0.5 text-[10px] font-bold rounded ${worker.status === 'BUSY' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
-                  {worker.status}
-                </span>
-              </div>
-              <div className="text-[11px] text-slate-400 font-mono mb-2 truncate">
-                {worker.hostname}
-              </div>
-              {/* Progress bars */}
-              <div className="grid grid-cols-2 gap-2 text-[10px] text-slate-400">
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>CPU</span>
-                    <span className="text-cyan-400 font-mono">{worker.cpuUsage}%</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                    <div className="h-full rounded-full bg-cyan-500" style={{ width: `${worker.cpuUsage}%` }} />
-                  </div>
-                </div>
-                <div>
-                  <div className="flex justify-between mb-1">
-                    <span>RAM</span>
-                    <span className="text-indigo-400 font-mono">{worker.memoryUsageMB}MB</span>
-                  </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
-                    <div className="h-full rounded-full bg-indigo-500" style={{ width: `${(worker.memoryUsageMB / 512) * 100}%` }} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <span className="px-2 py-0.5 text-[11px] font-mono rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-semibold">
+          ALL HEALTHY
+        </span>
       </div>
 
-      {/* Queue Priorities Widget */}
-      <div className="rounded-2xl bg-gradient-to-b from-slate-900/90 to-slate-950/90 border border-slate-800/80 shadow-xl backdrop-blur-xl p-5">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <Server className="w-4 h-4 text-emerald-400" />
-            Priority Queue Health
-          </h3>
-          <span className="text-xs font-mono text-slate-400">4 Queues</span>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {workers.map((w) => (
+          <div key={w.id} className="p-4 rounded-md bg-zinc-900/60 border border-zinc-800 hover:border-zinc-700 transition">
+            <div className="flex items-center justify-between text-xs font-mono mb-1">
+              <span className="font-bold text-zinc-200">{w.id}</span>
+              <span className={`px-1.5 py-0.2 rounded text-[10px] font-bold ${w.status === 'BUSY' ? 'bg-amber-500/20 text-amber-300' : 'bg-emerald-500/20 text-emerald-300'}`}>
+                {w.status}
+              </span>
+            </div>
+            <div className="text-[11px] font-mono text-zinc-500 mb-3 truncate">
+              {w.hostname}
+            </div>
 
-        <div className="space-y-3">
-          {queues.map((q) => (
-            <div key={q.name} className="p-3 rounded-xl bg-slate-900/60 border border-slate-800/70">
-              <div className="flex items-center justify-between text-xs mb-1">
-                <span className="font-semibold text-slate-200">{q.name}</span>
-                <span className="font-mono text-emerald-400 font-bold">{q.latencyMs}ms avg</span>
+            <div className="space-y-2 text-[11px] font-mono text-zinc-400">
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span>CPU Load</span>
+                  <span className="text-zinc-200">{w.cpuUsage}%</span>
+                </div>
+                <div className="w-full h-1 rounded bg-zinc-800 overflow-hidden">
+                  <div className="h-full bg-emerald-500 rounded" style={{ width: `${w.cpuUsage}%` }} />
+                </div>
               </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-400">
-                <span>Completed: {q.completedTotal.toLocaleString()}</span>
-                <span className="font-mono text-slate-300 font-bold">{q.activeJobs} active</span>
+
+              <div>
+                <div className="flex justify-between mb-1">
+                  <span>Memory</span>
+                  <span className="text-zinc-200">{w.memoryUsageMB} MB</span>
+                </div>
+                <div className="w-full h-1 rounded bg-zinc-800 overflow-hidden">
+                  <div className="h-full bg-blue-500 rounded" style={{ width: `${(w.memoryUsageMB / 512) * 100}%` }} />
+                </div>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
