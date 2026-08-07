@@ -35,9 +35,23 @@ async function runBenchmark() {
 
   for (let i = 0; i < totalJobs; i += batchSize) {
     const promises = [];
+    const jobsData = [];
+
     for (let j = 0; j < batchSize; j++) {
-      const jobId = `job-${crypto.randomBytes(6).toString('hex')}`;
+      const jobId = crypto.randomUUID();
       const priority = j % 10 === 0 ? 'CRITICAL' : j % 4 === 0 ? 'HIGH' : 'NORMAL';
+
+      jobsData.push({
+        id: jobId,
+        queueId,
+        projectId,
+        name: 'benchmark-task',
+        payload: { batchIndex: i, itemIndex: j, timestamp: Date.now() },
+        priority,
+        status: 'QUEUED',
+        maxRetries: 3,
+        timeoutMs: 15000,
+      });
 
       promises.push(
         producer.enqueue(queueId, priority, {
@@ -53,6 +67,9 @@ async function runBenchmark() {
         })
       );
     }
+
+    // Insert into DB first so worker doesn't crash on update
+    await prisma.job.createMany({ data: jobsData });
 
     await Promise.all(promises);
     completedCount += batchSize;
