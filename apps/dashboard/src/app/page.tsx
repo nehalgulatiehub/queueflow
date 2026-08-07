@@ -1,29 +1,32 @@
 'use client';
 
+import { Navbar } from '../components/navbar';
 import { MetricsCards } from '../components/metrics-cards';
 import { ThroughputChart } from '../components/throughput-chart';
+import { LiveJobStream } from '../components/live-job-stream';
+import { WorkerPoolWidget } from '../components/worker-pool-widget';
 
 export default function DashboardPage() {
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 p-8">
-      <header className="flex items-center justify-between mb-8 pb-4 border-b border-slate-800">
-        <div>
-          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-500">
-            QueueFlow Control Plane
-          </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Enterprise Distributed Job Queue Monitoring & Realtime Telemetry
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          <span className="px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-            Cluster v1.0.0
-          </span>
-        </div>
-      </header>
+    <div className="min-h-screen bg-slate-950 text-slate-100 font-sans selection:bg-cyan-500/20 selection:text-cyan-300">
+      {/* Top Navigation */}
+      <Navbar />
 
-      <MetricsCards />
-      <ThroughputChart />
-    </main>
+      <main className="max-w-7xl mx-auto px-6 pb-16">
+        {/* Metric Overview Cards */}
+        <MetricsCards />
+
+        {/* Main Grid: Left Chart & Live Jobs Stream (8 cols), Right Worker Widget (4 cols) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-8">
+            <ThroughputChart />
+            <LiveJobStream />
+          </div>
+          <div className="lg:col-span-4">
+            <WorkerPoolWidget />
+          </div>
+        </div>
+      </main>
+    </div>
   );
 }
