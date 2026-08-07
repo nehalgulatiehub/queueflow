@@ -9,13 +9,14 @@
     "shared"
   ],
   "scripts": {
-    "dev": "npm run dev --workspaces --if-present",
+    "dev": "npx concurrently -k -p name -n api,dashboard,worker,scheduler -c blue,emerald,cyan,purple \"npm run dev --workspace=@queueflow/api-server\" \"npm run dev --workspace=@queueflow/dashboard\" \"npm run dev --workspace=@queueflow/worker-service\" \"npm run dev --workspace=@queueflow/scheduler-service\"",
     "build": "npm run build --workspace=@queueflow/config --workspace=@queueflow/database --workspace=@queueflow/logger --workspace=@queueflow/monitoring --workspace=@queueflow/redis-engine --workspace=@queueflow/shared && npm run build --workspace=@queueflow/api-server --workspace=@queueflow/dashboard --workspace=@queueflow/scheduler-service --workspace=@queueflow/worker-service",
     "test": "vitest run",
     "db:generate": "npm run db:generate --workspace=@queueflow/database"
   },
   "devDependencies": {
     "@types/node": "^22.8.1",
+    "concurrently": "^10.0.4",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
   }
