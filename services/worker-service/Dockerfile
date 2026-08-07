@@ -9,6 +9,7 @@ COPY services/worker-service ./services/worker-service
 
 RUN npm install
 RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
+RUN npm run build --workspace=@queueflow/config --workspace=@queueflow/database --workspace=@queueflow/logger --workspace=@queueflow/monitoring --workspace=@queueflow/redis-engine --workspace=@queueflow/shared
 RUN npm run build --workspace=@queueflow/worker-service
 
 FROM node:22-alpine AS runner

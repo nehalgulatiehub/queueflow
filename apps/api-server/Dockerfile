@@ -11,6 +11,7 @@ COPY apps/api-server ./apps/api-server
 # Install dependencies and build
 RUN npm install
 RUN npx prisma generate --schema=packages/database/prisma/schema.prisma
+RUN npm run build --workspace=@queueflow/config --workspace=@queueflow/database --workspace=@queueflow/logger --workspace=@queueflow/monitoring --workspace=@queueflow/redis-engine --workspace=@queueflow/shared
 RUN npm run build --workspace=@queueflow/api-server
 
 FROM node:22-alpine AS runner
