@@ -4,7 +4,7 @@ import { useDashboardStore } from '../stores/use-dashboard-store';
 import { ArrowUpRight, CheckCircle, AlertOctagon, Cpu, Zap } from 'lucide-react';
 
 export function MetricsCards() {
-  const { isConnected, activeWorkersCount, totalCompleted, totalFailed, activeJobsInFlight } = useDashboardStore();
+  const { isConnected, activeWorkersCount, totalCompleted, totalFailed, activeJobsInFlight, currentThroughput } = useDashboardStore();
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -13,11 +13,12 @@ export function MetricsCards() {
         <div className="flex items-center justify-between text-xs text-zinc-400 font-medium">
           <span>Throughput Rate</span>
           <span className="text-emerald-400 font-mono flex items-center text-[11px]">
-            <ArrowUpRight className="w-3 h-3 mr-0.5" /> +8.3%
+            <span className="w-2 h-2 rounded-full bg-emerald-400 mr-1.5 animate-pulse"></span>
+            Live
           </span>
         </div>
         <div className="mt-2 flex items-baseline justify-between">
-          <span className="text-2xl font-bold text-zinc-100 font-mono tracking-tight">11,429</span>
+          <span className="text-2xl font-bold text-zinc-100 font-mono tracking-tight">{currentThroughput.toLocaleString()}</span>
           <span className="text-xs text-zinc-500 font-mono">jobs/sec</span>
         </div>
         <div className="mt-3 pt-2.5 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-500">

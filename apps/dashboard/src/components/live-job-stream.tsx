@@ -82,7 +82,9 @@ export function LiveJobStream() {
                     </span>
                   </div>
                 </td>
-                <td className="py-2.5 px-3 text-zinc-400">{job.durationMs}ms</td>
+                <td className="py-2.5 px-3 text-zinc-400">
+                  {job.durationMs > 1000 ? `${(job.durationMs / 1000).toFixed(1)}s` : `${job.durationMs}ms`}
+                </td>
                 <td className="py-2.5 px-3 text-right text-zinc-500 font-sans">{job.timestamp}</td>
               </tr>
             ))}
