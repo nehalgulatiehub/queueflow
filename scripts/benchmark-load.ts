@@ -2,7 +2,13 @@ import { StreamProducer, createRedisClient } from '@queueflow/redis-engine';
 import { PrismaClient } from '@queueflow/database';
 import crypto from 'crypto';
 
-const prisma = new PrismaClient();
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL || 'postgresql://queueflow:queueflow_secret_password@localhost:5432/queueflow_db?schema=public',
+    },
+  },
+});
 
 async function runBenchmark() {
   console.log('🚀 Starting QueueFlow High-Throughput Load Benchmark (Target: 1,000 jobs/sec)...');
