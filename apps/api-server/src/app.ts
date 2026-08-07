@@ -22,7 +22,7 @@ export function buildApp(): FastifyInstance {
   });
 
   const app = Fastify({
-    logger,
+    logger: logger as any,
     disableRequestLogging: false,
   });
 

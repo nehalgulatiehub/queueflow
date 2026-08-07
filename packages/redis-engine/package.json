@@ -1,8 +1,10 @@
 {
   "name": "@queueflow/redis-engine",
   "version": "1.0.0",
-  "main": "src/index.ts",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "type": "module",
   "scripts": {
     "build": "tsc"
   },

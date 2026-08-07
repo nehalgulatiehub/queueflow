@@ -19,7 +19,7 @@ export default fp(async (fastify) => {
   // Subscribe to Redis Pub/Sub channel
   await subscriberRedis.subscribe('queueflow:events');
 
-  subscriberRedis.on('message', (channel, message) => {
+  subscriberRedis.on('message', (channel: string, message: string) => {
     if (channel === 'queueflow:events') {
       for (const client of activeClients) {
         if (client.readyState === WebSocket.OPEN) {
@@ -29,8 +29,8 @@ export default fp(async (fastify) => {
     }
   });
 
-  fastify.get('/v1/ws', { websocket: true }, (connection, req) => {
-    const socket = connection.socket;
+  fastify.get('/v1/ws', { websocket: true }, (connection: any, req) => {
+    const socket = connection.socket || connection;
     activeClients.add(socket);
 
     fastify.log.info('Client connected to WebSocket Gateway');
@@ -46,7 +46,7 @@ export default fp(async (fastify) => {
       fastify.log.info('Client disconnected from WebSocket Gateway');
     });
 
-    socket.on('error', (err) => {
+    socket.on('error', (err: Error) => {
       fastify.log.error(err, 'WebSocket client error');
       activeClients.delete(socket);
     });

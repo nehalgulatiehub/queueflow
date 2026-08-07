@@ -18,7 +18,7 @@ export class AuthService {
 
     const slug = input.organizationName.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '-' + Math.random().toString(36).substring(2, 6);
 
-    const user = await this.prisma.$transaction(async (tx) => {
+    const user = await this.prisma.$transaction(async (tx: any) => {
       const createdUser = await tx.user.create({
         data: {
           email: input.email,

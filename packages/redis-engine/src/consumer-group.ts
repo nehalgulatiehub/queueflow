@@ -39,7 +39,7 @@ export class StreamConsumerGroup {
     const positions = streamKeys.map(() => '>');
     
     // xreadgroup('GROUP', groupName, consumerName, 'BLOCK', blockMs, 'COUNT', count, 'STREAMS', ...streamKeys, ...positions)
-    const result = await this.redis.xreadgroup(
+    const result = await (this.redis as any).xreadgroup(
       'GROUP',
       groupName,
       consumerName,

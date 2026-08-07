@@ -11,6 +11,15 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "composite": true
+    "composite": true,
+    "baseUrl": ".",
+    "paths": {
+      "@queueflow/config": ["packages/config/dist/index.d.ts"],
+      "@queueflow/database": ["packages/database/dist/index.d.ts"],
+      "@queueflow/logger": ["packages/logger/dist/index.d.ts"],
+      "@queueflow/monitoring": ["packages/monitoring/dist/index.d.ts"],
+      "@queueflow/redis-engine": ["packages/redis-engine/dist/index.d.ts"],
+      "@queueflow/shared": ["shared/dist/index.d.ts"]
+    }
   }
 }

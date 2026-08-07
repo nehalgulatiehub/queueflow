@@ -1,0 +1,50 @@
+import { z } from 'zod';
+export declare const envSchema: z.ZodObject<{
+    NODE_ENV: z.ZodDefault<z.ZodEnum<["development", "test", "production"]>>;
+    PORT: z.ZodDefault<z.ZodNumber>;
+    HOST: z.ZodDefault<z.ZodString>;
+    DATABASE_URL: z.ZodDefault<z.ZodString>;
+    REDIS_HOST: z.ZodDefault<z.ZodString>;
+    REDIS_PORT: z.ZodDefault<z.ZodNumber>;
+    REDIS_PASSWORD: z.ZodDefault<z.ZodString>;
+    REDIS_DB: z.ZodDefault<z.ZodNumber>;
+    JWT_SECRET: z.ZodDefault<z.ZodString>;
+    JWT_EXPIRES_IN: z.ZodDefault<z.ZodString>;
+    REFRESH_TOKEN_EXPIRES_IN: z.ZodDefault<z.ZodString>;
+    LOG_LEVEL: z.ZodDefault<z.ZodEnum<["trace", "debug", "info", "warn", "error", "fatal"]>>;
+    OTEL_SERVICE_NAME: z.ZodDefault<z.ZodString>;
+    PROMETHEUS_METRICS_ENABLED: z.ZodDefault<z.ZodBoolean>;
+}, "strip", z.ZodTypeAny, {
+    NODE_ENV: "development" | "production" | "test";
+    DATABASE_URL: string;
+    PORT: number;
+    HOST: string;
+    REDIS_HOST: string;
+    REDIS_PORT: number;
+    REDIS_PASSWORD: string;
+    REDIS_DB: number;
+    JWT_SECRET: string;
+    JWT_EXPIRES_IN: string;
+    REFRESH_TOKEN_EXPIRES_IN: string;
+    LOG_LEVEL: "fatal" | "error" | "warn" | "info" | "debug" | "trace";
+    OTEL_SERVICE_NAME: string;
+    PROMETHEUS_METRICS_ENABLED: boolean;
+}, {
+    NODE_ENV?: "development" | "production" | "test" | undefined;
+    DATABASE_URL?: string | undefined;
+    PORT?: number | undefined;
+    HOST?: string | undefined;
+    REDIS_HOST?: string | undefined;
+    REDIS_PORT?: number | undefined;
+    REDIS_PASSWORD?: string | undefined;
+    REDIS_DB?: number | undefined;
+    JWT_SECRET?: string | undefined;
+    JWT_EXPIRES_IN?: string | undefined;
+    REFRESH_TOKEN_EXPIRES_IN?: string | undefined;
+    LOG_LEVEL?: "fatal" | "error" | "warn" | "info" | "debug" | "trace" | undefined;
+    OTEL_SERVICE_NAME?: string | undefined;
+    PROMETHEUS_METRICS_ENABLED?: boolean | undefined;
+}>;
+export type Env = z.infer<typeof envSchema>;
+export declare function loadEnv(): Env;
+//# sourceMappingURL=env.schema.d.ts.map
