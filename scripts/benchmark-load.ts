@@ -1,5 +1,8 @@
 import { StreamProducer, createRedisClient } from '@queueflow/redis-engine';
+import { PrismaClient } from '@queueflow/database';
 import crypto from 'crypto';
+
+const prisma = new PrismaClient();
 
 async function runBenchmark() {
   console.log('🚀 Starting QueueFlow High-Throughput Load Benchmark (Target: 1,000 jobs/sec)...');
@@ -10,9 +13,12 @@ async function runBenchmark() {
     password: process.env.REDIS_PASSWORD || 'queueflow_redis_password',
   });
 
+  const activeQueue = await prisma.queue.findFirst({ where: { status: 'ACTIVE' } });
+  if (!activeQueue) throw new Error('No active queue found in PostgreSQL!');
+
   const producer = new StreamProducer(redis);
-  const queueId = 'q-benchmark-1000';
-  const projectId = 'proj-benchmark';
+  const queueId = activeQueue.id;
+  const projectId = activeQueue.projectId;
   const totalJobs = 10000;
   const batchSize = 100;
 
@@ -63,9 +69,11 @@ async function runBenchmark() {
   console.log('=====================================================');
 
   await redis.quit();
+  await prisma.$disconnect();
 }
 
-runBenchmark().catch((err) => {
+runBenchmark().catch(async (err) => {
   console.error('❌ Benchmark failed:', err);
+  await prisma.$disconnect();
   process.exit(1);
 });
