@@ -9,6 +9,7 @@
     "shared"
   ],
   "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
     "build": "npm run build --workspace=@queueflow/config --workspace=@queueflow/database --workspace=@queueflow/logger --workspace=@queueflow/monitoring --workspace=@queueflow/redis-engine --workspace=@queueflow/shared && npm run build --workspace=@queueflow/api-server --workspace=@queueflow/dashboard --workspace=@queueflow/scheduler-service --workspace=@queueflow/worker-service",
     "test": "vitest run",
     "db:generate": "npm run db:generate --workspace=@queueflow/database"
