@@ -48,11 +48,10 @@ export function Navbar({ activeTab, setActiveTab }: NavbarProps) {
             />
           </div>
 
-          {/* Connection Status */}
           <div className="flex items-center gap-2 px-2.5 py-1 rounded-md bg-zinc-900 border border-zinc-800 text-xs">
-            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+            <span className={`w-2 h-2 rounded-full ${isConnected ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`} />
             <span className="font-mono text-zinc-300 text-[11px]">
-              {isConnected ? 'ws://localhost:4000' : 'Offline'}
+              {isConnected ? 'Connected: ws://localhost:4000' : 'Reconnecting...'}
             </span>
           </div>
 
