@@ -10,11 +10,12 @@ import { WorkerPoolWidget } from '../components/worker-pool-widget';
 import { useDashboardStore } from '../stores/use-dashboard-store';
 
 export default function DashboardPage() {
+  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<'overview' | 'queues' | 'jobs' | 'workers'>('overview');
   const { fetchLiveTelemetry, setIsConnected } = useDashboardStore();
 
   useEffect(() => {
-    // Initial fetch + 2s polling interval
+    setMounted(true);
     fetchLiveTelemetry();
     const interval = setInterval(fetchLiveTelemetry, 2000);
 
