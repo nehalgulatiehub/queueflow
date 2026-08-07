@@ -5,7 +5,7 @@ import crypto from 'crypto';
 export const env = loadEnv();
 
 export const workerConfig = {
-  workerId: process.env.WORKER_ID || `worker-${crypto.randomBytes(4).toString('hex')}`,
+  workerId: process.env.WORKER_ID || crypto.randomUUID(),
   workerName: process.env.WORKER_NAME || `queueflow-worker-${os.hostname()}`,
   hostname: os.hostname(),
   ipAddress: '127.0.0.1',
