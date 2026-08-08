@@ -11,11 +11,7 @@ Built on **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Event-Dri
 
 ---
 
-## 📐 System Architecture Diagram
 
-![QueueFlow Architecture Diagram](queueflow_architecture_diagram.png)
-
----
 
 ## 🌟 Key Features
 
