@@ -132,7 +132,7 @@ npm run dev
 
 ---
 
-## 🧹 Resetting Demo Environment
+## 🧹 Resetting Cluster Environment
 
 To clean up all jobs, clear Redis streams, and reset the database before running new load tests:
 

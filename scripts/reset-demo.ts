@@ -2,7 +2,7 @@ import { PrismaClient } from '@queueflow/database';
 import { createRedisClient } from '@queueflow/redis-engine';
 
 async function resetDemo() {
-  console.log('🧹 Resetting QueueFlow demo environment...');
+  console.log('Resetting QueueFlow cluster environment...');
 
   const prisma = new PrismaClient({
     datasources: {
@@ -19,17 +19,15 @@ async function resetDemo() {
   });
 
   try {
-    // Clear Redis
     await redis.flushall();
-    console.log('✅ Redis Streams & Keys flushed.');
+    console.log('Redis Streams & Keys flushed.');
 
-    // Clear Jobs from Postgres
     const deleted = await prisma.job.deleteMany({});
-    console.log(`✅ Cleared ${deleted.count} historical jobs from PostgreSQL.`);
+    console.log(`Cleared ${deleted.count} historical jobs from PostgreSQL.`);
 
-    console.log('\n✨ Demo environment is 100% clean and ready for LinkedIn video recording!');
+    console.log('Cluster environment successfully reset.');
   } catch (err) {
-    console.error('❌ Error resetting demo:', err);
+    console.error('Error resetting cluster:', err);
   } finally {
     await redis.quit();
     await prisma.$disconnect();

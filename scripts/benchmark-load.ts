@@ -52,6 +52,15 @@ async function runBenchmark() {
         maxRetries: 3,
         timeoutMs: 15000,
       });
+    }
+
+    // Insert into DB first so worker doesn't crash on update
+    await prisma.job.createMany({ data: jobsData });
+
+    // Enqueue to Redis ONLY AFTER DB insertion is complete
+    for (let j = 0; j < batchSize; j++) {
+      const jobId = jobsData[j].id;
+      const priority = jobsData[j].priority;
 
       promises.push(
         producer.enqueue(queueId, priority, {
@@ -67,9 +76,6 @@ async function runBenchmark() {
         })
       );
     }
-
-    // Insert into DB first so worker doesn't crash on update
-    await prisma.job.createMany({ data: jobsData });
 
     await Promise.all(promises);
     completedCount += batchSize;

@@ -80,7 +80,7 @@ export class JobExecutor {
       signal.addEventListener('abort', onAbort);
 
       // Simulate work duration safely
-      const processingTimeMs = 1; // Ultra-fast for benchmark demo
+      const processingTimeMs = 1;
       setTimeout(() => {
         signal.removeEventListener('abort', onAbort);
         if (signal.aborted) return;
