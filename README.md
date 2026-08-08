@@ -1,13 +1,19 @@
 # QueueFlow: Distributed Background Job Processing Platform
 
-[![CI/CD Pipeline](https://github.com/queueflow/queueflow/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/queueflow/queueflow/actions/workflows/ci-cd.yml)
+[![CI/CD Pipeline](https://github.com/nehalgulatiehub/queueflow/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/nehalgulatiehub/queueflow/actions/workflows/ci-cd.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Node.js 22](https://img.shields.io/badge/Node.js-22.x-green.svg)](https://nodejs.org)
 [![TypeScript 5](https://img.shields.io/badge/TypeScript-5.6-blue.svg)](https://www.typescriptlang.org)
 
-QueueFlow is an enterprise-grade, high-throughput distributed background job processing platform designed to process **100,000+ jobs/day** with peak throughput exceeding **1,000 jobs/second** and supporting up to **1,000 active worker instances**.
+QueueFlow is an enterprise-grade, high-throughput distributed background job processing platform built with Node.js, Redis Streams, PostgreSQL, and Next.js 15. Designed to process **100,000+ jobs/day** with peak throughput exceeding **1,000+ jobs/second** and supporting scalable worker pool clusters.
 
-Built on **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Event-Driven Microservices**, QueueFlow provides at-least-once delivery guarantees using raw **Redis Streams**, PostgreSQL metadata persistence, OpenTelemetry tracing, Prometheus metrics, and a Next.js 15 real-time operations dashboard.
+Built on **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Event-Driven Microservices**, QueueFlow provides at-least-once delivery guarantees using raw **Redis Streams**, PostgreSQL metadata persistence, OpenTelemetry tracing, Prometheus metrics, and a Next.js 15 real-time operations dashboard over WebSockets.
+
+---
+
+## 📐 System Architecture Diagram
+
+![QueueFlow Architecture Diagram](queueflow_architecture_diagram.png)
 
 ---
 
@@ -16,13 +22,13 @@ Built on **Clean Architecture**, **Domain-Driven Design (DDD)**, and **Event-Dri
 - **Multi-Tenant Security & Isolation**: User registration, Organization provisioning, Project scoping, JWT authentication, and SHA-256 hashed API Keys (`qf_live_...`).
 - **Priority Tiering**: 4-level priority sub-streams (`CRITICAL`, `HIGH`, `NORMAL`, `LOW`) with weighted worker consumer polling.
 - **Idempotency & Deduplication**: Redis-backed atomic `SETNX` idempotency key protection preventing duplicate job processing.
-- **Fault Tolerance & Data-Loss Prevention**: Redis Stream Pending Entries List (`PEL`) auto-claiming via `XAUTOCLAIM` to recover orphaned jobs from crashed workers within 30 seconds.
+- **Fault Tolerance & Data-Loss Prevention**: Redis Stream Pending Entries List (`PEL`) auto-claiming via `XAUTOCLAIM` to recover orphaned jobs from crashed workers within 15 seconds.
 - **Sandboxed Execution & Timeouts**: Worker tasks run inside `AbortController` timeout containers to prevent process hanging.
-- **Exponential Retry Engine**: Configurable linear and exponential retry backoff policies ($2^{\text{retry}} \times 1000\text{ms}$) with Dead Letter Queue (`DLQ`) archiving.
+- **Exponential Retry Engine**: Configurable backoff policies ($2^{\text{retry}} \times 1000\text{ms}$) with Dead Letter Queue (`DLQ`) archiving.
 - **Delayed & Recurring Cron Scheduler**: Database-indexed delayed sweeper and standard 5-field cron expression parser (`cron-parser`).
 - **Real-Time Operations Dashboard**: Next.js 15 App Router control panel with WebSockets (`@fastify/websocket`), Recharts throughput visualizer, and Zustand state store.
 - **Cloud-Native Observability**: Native Prometheus metrics (`/metrics`), Grafana dashboard configs, and Pino structured JSON logging.
-- **Production Kubernetes Readiness**: Multi-stage Node 22 Alpine Dockerfiles, Kubernetes Deployments, Services, Ingress, and HorizontalPodAutoscalers (HPA) scaling from 5 to 100 worker replicas.
+- **Production Kubernetes Readiness**: Multi-stage Dockerfiles, Kubernetes Deployments, Services, and Namespaces in `infra/k8s`.
 
 ---
 
@@ -100,7 +106,7 @@ graph TD
 
 ### 1. Clone & Install Dependencies
 ```bash
-git clone https://github.com/queueflow/queueflow.git
+git clone https://github.com/nehalgulatiehub/queueflow.git
 cd queueflow
 npm install --legacy-peer-deps
 ```
@@ -112,31 +118,51 @@ docker-compose up -d
 ```
 
 ### 3. Initialize Database Schema
-Generate Prisma client:
+Generate Prisma client & run database migrations:
 ```bash
 npx prisma generate --schema=packages/database/prisma/schema.prisma
 ```
 
-### 4. Run Development Services
-Start API Server, Worker Pool, Scheduler Daemon, and Dashboard in parallel:
+### 4. Run Development Cluster
+Start API Server, Worker Pool, Scheduler Daemon, and Dashboard concurrently:
 ```bash
-# Terminal 1: API Server
-npm run dev --workspace=@queueflow/api-server
-
-# Terminal 2: Worker Service
-npm run dev --workspace=@queueflow/worker-service
-
-# Terminal 3: Scheduler Daemon
-npm run dev --workspace=@queueflow/scheduler-service
-
-# Terminal 4: Next.js Operations Dashboard
-npm run dev --workspace=@queueflow/dashboard
+npm run dev
 ```
 
 - **API Server**: [http://localhost:4000](http://localhost:4000)
 - **Operations Dashboard**: [http://localhost:3000](http://localhost:3000)
 - **Prometheus Metrics**: [http://localhost:4000/metrics](http://localhost:4000/metrics)
 - **Grafana**: [http://localhost:3001](http://localhost:3001)
+
+---
+
+## 🧹 Resetting Demo Environment
+
+To clean up all jobs, clear Redis streams, and reset the database before running new load tests:
+
+```bash
+npx tsx scripts/reset-demo.ts
+```
+
+---
+
+## ⚡ High-Throughput Load Benchmarking
+
+Run the 1,000+ jobs/sec benchmark script:
+
+```bash
+npx tsx scripts/benchmark-load.ts
+```
+
+```text
+=====================================================
+🎉 QueueFlow Load Benchmark Results
+=====================================================
+Total Jobs Enqueued : 10,000
+Elapsed Time        : 1.03 seconds
+Throughput          : 9,709 jobs/second
+=====================================================
+```
 
 ---
 
@@ -149,8 +175,6 @@ npx vitest run
 ```
 
 ```text
- RUN  v2.1.9 C:/Users/welcome/.gemini/antigravity/scratch/queueflow
-
  ✓ apps/api-server/src/modules/api-keys/__tests__/api-key.test.ts (1 test)
  ✓ packages/redis-engine/src/__tests__/stream-producer.test.ts (2 tests)
  ✓ packages/config/src/__tests__/env.test.ts (2 tests)
@@ -162,25 +186,6 @@ npx vitest run
 
  Test Files  8 passed (8)
       Tests  11 passed (11)
-```
-
----
-
-## ⚡ High-Throughput Load Benchmarking
-
-Run the 1,000+ jobs/sec benchmark script:
-```bash
-npx tsx scripts/benchmark-load.ts
-```
-
-```text
-=====================================================
-🎉 QueueFlow Load Benchmark Results
-=====================================================
-Total Jobs Enqueued : 10,000
-Elapsed Time        : 6.84 seconds
-Throughput          : 1,462 jobs/second
-=====================================================
 ```
 
 ---
